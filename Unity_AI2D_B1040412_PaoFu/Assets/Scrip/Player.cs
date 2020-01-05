@@ -1,16 +1,20 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.UI;
 public class Player : MonoBehaviour
 {
     Rigidbody2D myRd2d;
     AudioSource myAudi;
     Animator myAni;
-    public int HP = 100;
-    public float Speed, jumpspeed;
-    public bool isGround;
+    public float HP = 100;
+    public float Speed, jumpspeed,HitX,HitY;
+    public bool isGround,HaveKey;
     public int Satus;
+    public AudioClip Jump,hit,PickUPCoin,PickUPKey;
+    public Image HPBAR;
+    public GameObject Main;
+
 
 
 
@@ -41,10 +45,21 @@ public class Player : MonoBehaviour
                 {
                     isGround = false;
                     myRd2d.AddForce(new Vector2(0, jumpspeed));
+                    myAudi.PlayOneShot(Jump);
+                }
+
+                HPBAR.fillAmount = HP / 100;
+
+                if (HP<=0)
+                {
+                    Satus = 1;
                 }
 
                 break;
-            case 1:
+            case 1: //死亡
+                myAni.SetBool("Die", true);
+                Main.GetComponent<Main>().Fail();
+                this.GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezeAll;
                 break;
         }
 
@@ -79,5 +94,31 @@ public class Player : MonoBehaviour
         {
             isGround = true;
         }
+        if (other.name == "DieZone")
+        {
+            Satus = 1;
+        }
     }
+
+    public void GetKey()
+    {
+        HaveKey = true;
+        myAudi.PlayOneShot(PickUPKey);
+    }
+    public void GetCoin()
+    {
+        myAudi.PlayOneShot(PickUPCoin);
+    }
+    public void GetHit()
+    {
+        if (Satus == 0)
+        {
+            myAudi.PlayOneShot(hit);
+            //this.transform.position = this.transform.position - new Vector3(0.5f, -0.3f);
+            myRd2d.AddForce(new Vector2(HitX, HitY));
+            HP = HP - 10;
+        }
+    }
+
+    
 }
